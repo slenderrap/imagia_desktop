@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:imagia/app_lib.dart';
 
-
-
 class MainView extends StatefulWidget {
   const MainView({super.key});
 
