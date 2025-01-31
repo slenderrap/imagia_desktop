@@ -1,14 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:imagia/app_lib.dart';
+import 'package:imagia/home_view.dart';
+import 'package:imagia/utils.dart';
 
-class MainView extends StatefulWidget {
-  const MainView({super.key});
+class LoginView extends StatefulWidget {
+  const LoginView({super.key});
 
   @override
-  State<MainView> createState() => _MainViewState();
+  State<LoginView> createState() => _LoginViewState();
 }
 
-class _MainViewState extends State<MainView> {
+class _LoginViewState extends State<LoginView> {
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -18,6 +22,7 @@ class _MainViewState extends State<MainView> {
     'username': "",
     'password': "",
   };
+  bool loading = false;
 
   @override
   void initState() {
@@ -36,19 +41,37 @@ class _MainViewState extends State<MainView> {
   }
 
   Future<void> _handleConnect() async {
+    setState(() {
+      loading = true;
+    });
     String? response = await AppLib.connect(
       url: _urlController.text,
       username: _usernameController.text,
       password: _passwordController.text,
     );
 
+    setState(() {
+      loading = false;
+    });
     if(response == null) {
+      showError(context, "Error de connexió");
       setState(() {
         errors['conn'] = true;
       });
       return;
     }
-    print("Response: $response");
+
+    Map<String, dynamic> responseObj = jsonDecode(response);
+    
+    if(responseObj["status"] == "ERROR" && context.mounted) {
+      showError(context, responseObj["message"]);
+      return;
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomeView(username: _usernameController.text)),
+    );
     
     
     await AppLib.savePreferences(
@@ -103,6 +126,7 @@ class _MainViewState extends State<MainView> {
                         ),
                         const SizedBox(height: 16),
                         TextField(
+                          enabled: !loading,
                           controller: _urlController,
                           decoration: const InputDecoration(
                             labelText: 'URL',
@@ -117,6 +141,7 @@ class _MainViewState extends State<MainView> {
                             : const SizedBox.shrink(),
                         const SizedBox(height: 16),
                         TextField(
+                          enabled: !loading,
                           controller: _usernameController,
                           decoration: const InputDecoration(
                             labelText: 'Username',
@@ -132,6 +157,7 @@ class _MainViewState extends State<MainView> {
                         const SizedBox(height: 16),
                         
                         TextField(
+                          enabled: !loading,
                           controller: _passwordController,
                           decoration: const InputDecoration(
                             labelText: 'Password',
@@ -149,7 +175,7 @@ class _MainViewState extends State<MainView> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: _handleConnect,
+                            onPressed: loading ? null : _handleConnect,
                             style: ButtonStyle(
                               foregroundColor: WidgetStateProperty.resolveWith<Color>(
                                 (Set<WidgetState> states) {
@@ -162,11 +188,23 @@ class _MainViewState extends State<MainView> {
                                   if (states.contains(WidgetState.pressed)) {
                                     return const Color(0xFF3066BE);
                                   }
+                                  else if(states.contains(WidgetState.disabled)) {
+                                    return const Color(0xFF3C3744);
+                                  }
                                   return const Color(0xFF090C9B); 
                                 },
                               ),
                             ),
-                            child: const Text('Connect'),
+                            child:loading ? 
+                              const SizedBox(
+                                height: 12,
+                                width: 12,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFBFFF1)),
+                                ),
+                              ) : 
+                              const Text('Connect'),
                           ),
                         ),
                       ],

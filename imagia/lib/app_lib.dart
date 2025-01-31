@@ -45,12 +45,7 @@ class AppLib {
         headers: {'Content-Type': 'application/json'},
         body: body,
       );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['message'];
-      } else {
-        return response.body;
-      }
+      return response.body;
     } catch (e) {
       return null;
     }
