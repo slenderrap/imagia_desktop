@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,17 +29,15 @@ class AppLib {
     return null;
   }
 
-  static Future<void> connect({
+  static Future<String?> connect({
     required String url,
     required String username,
     required String password,
   }) async {
-    final endpoint = Uri.parse('$url/api/usuaris/registrar');
+    final endpoint = Uri.parse('$url/api/admin/usuaris/login');
     final body = jsonEncode({
-      'telefon': '123456789',
-      'nickname': username,
-      'email': '$username@example.com',
-      'contrasenya': password,
+      'username': username,
+      'password': password,
     });
     try {
       final response = await http.post(
@@ -47,12 +47,12 @@ class AppLib {
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print('Respuesta del servidor: ${data['message']}');
+        return data['message'];
       } else {
-        print('Error al conectar: ${response.statusCode} - ${response.body}');
+        return response.body;
       }
     } catch (e) {
-      print('Error de conexión: $e');
+      return null;
     }
   }
 }
