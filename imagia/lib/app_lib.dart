@@ -77,25 +77,32 @@ class AppLib {
   static Future<bool> updateUserRole(
     {
       required String token,
-      required String userId,
+      String? username,
+      String? email,
+      String? telefon,
       required String role,
     }
   ) async {
-    final endpoint = Uri.parse('$_url/api/admin/usuaris/$userId');
+    final endpoint = Uri.parse('$_url/api/admin/usuaris/pla/actualitzar');
     final body = jsonEncode({
-      'role': role,
+      'username': username,
+      'pla': role,
+      'token': token,
     });
-    // final response = await http.post(
-    //   endpoint,
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     'authorization': 'Bearer $token',
-    //   },
-    //   body: body,
-    // );
-    // if(response.statusCode == 200) {
-    //   return true;
-    // }
+    print(body);
+    final response = await http.post(
+      endpoint,
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': 'Bearer $token',
+      },
+      body: body,
+    );
+    if(response.statusCode == 200) {
+      print("Updated user role");
+      return true;
+    }
+    print("Error updating user role: ${response.body}");
     return false;
   }
 }

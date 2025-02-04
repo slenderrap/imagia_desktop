@@ -12,10 +12,6 @@ class HomeView extends StatefulWidget{
   State<HomeView> createState() => _HomeViewState();
 }
 
-void _handleStateChange(userId) {
-  print(userId);
-}
-
 class _HomeViewState extends State<HomeView> {
 
   List<dynamic>? _users;
@@ -75,7 +71,7 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 width: 40,
                 height: 40,
-                child: Text(widget.username?[0].toUpperCase() ?? '', style: const TextStyle(color: Colors.white),),
+                child: Text(widget.username[0].toUpperCase(), style: const TextStyle(color: Colors.white),),
               ),
             ),
           ),
@@ -192,8 +188,7 @@ class _HomeViewState extends State<HomeView> {
                                           ], 
                                           onChanged: (newValue) { 
                                             if(newValue != user['role']) {
-                                              print(newValue.runtimeType);
-                                              AppLib.updateUserRole(token: widget.token, userId: user['id'].toString(), role: newValue.toString()).then((value) {
+                                              AppLib.updateUserRole(token: widget.token.toString(), username: user['username'].toString(), role: newValue.toString()).then((value) {
                                                 if(value) {
                                                   AppLib.getUsersList(token: widget.token).then((value) {
                                                     setState(() {
