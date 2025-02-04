@@ -61,6 +61,7 @@ class _LoginViewState extends State<LoginView> {
       return;
     }
 
+    print(response);
     Map<String, dynamic> responseObj = jsonDecode(response);
     
     if(responseObj["status"] == "ERROR" && context.mounted) {
@@ -70,7 +71,7 @@ class _LoginViewState extends State<LoginView> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => HomeView(username: _usernameController.text)),
+      MaterialPageRoute(builder: (context) => HomeView(username: _usernameController.text, token: responseObj["data"]["token"] ?? "")),
     );
     
     

@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 class AppLib {
   static const String _keyUrl = 'url';
   static const String _keyUsername = 'username';
+  static String? _url;
 
   static Future<void> savePreferences({
     required String url, 
@@ -34,6 +35,7 @@ class AppLib {
     required String username,
     required String password,
   }) async {
+    _url = url;
     final endpoint = Uri.parse('$url/api/admin/usuaris/login');
     final body = jsonEncode({
       'username': username,
@@ -50,5 +52,53 @@ class AppLib {
       return null;
     }
   }
+
+  static Future<List?> getUsersList({
+    required String token,
+  }) async {
+    final endpoint = Uri.parse('$_url/api/admin/usuaris');
+    try {
+      final response = await http.get(
+        endpoint,
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': 'Bearer $token',
+        },
+      );
+      if(response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data["data"];
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<bool> updateUserRole(
+    {
+      required String token,
+      required String userId,
+      required String role,
+    }
+  ) async {
+    final endpoint = Uri.parse('$_url/api/admin/usuaris/$userId');
+    final body = jsonEncode({
+      'role': role,
+    });
+    // final response = await http.post(
+    //   endpoint,
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'authorization': 'Bearer $token',
+    //   },
+    //   body: body,
+    // );
+    // if(response.statusCode == 200) {
+    //   return true;
+    // }
+    return false;
+  }
 }
+
+
  
