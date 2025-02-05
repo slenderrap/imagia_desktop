@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:imagia/main_view.dart';
+import 'package:imagia/login_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -16,8 +16,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        fontFamily: "Montserrat",
       ),
-      home: const MainView(),
+      home: const LoginView(),
     );
   }
 }
