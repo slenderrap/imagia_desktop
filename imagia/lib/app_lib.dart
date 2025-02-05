@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class AppLib {
   static const String _keyUrl = 'url';
   static const String _keyUsername = 'username';
+  static String? _url;
 
   static Future<void> savePreferences({
     required String url, 
@@ -27,17 +30,16 @@ class AppLib {
     return null;
   }
 
-  static Future<void> connect({
+  static Future<String?> connect({
     required String url,
     required String username,
     required String password,
   }) async {
-    final endpoint = Uri.parse('$url/api/usuaris/registrar');
+    _url = url;
+    final endpoint = Uri.parse('$url/api/admin/usuaris/login');
     final body = jsonEncode({
-      'telefon': '123456789',
-      'nickname': username,
-      'email': '$username@example.com',
-      'contrasenya': password,
+      'username': username,
+      'password': password,
     });
     try {
       final response = await http.post(
@@ -45,15 +47,65 @@ class AppLib {
         headers: {'Content-Type': 'application/json'},
         body: body,
       );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        print('Respuesta del servidor: ${data['message']}');
-      } else {
-        print('Error al conectar: ${response.statusCode} - ${response.body}');
-      }
+      return response.body;
     } catch (e) {
-      print('Error de conexión: $e');
+      return null;
     }
   }
+
+  static Future<List?> getUsersList({
+    required String token,
+  }) async {
+    final endpoint = Uri.parse('$_url/api/admin/usuaris');
+    try {
+      final response = await http.get(
+        endpoint,
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': 'Bearer $token',
+        },
+      );
+      if(response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return data["data"];
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  static Future<bool> updateUserRole(
+    {
+      required String token,
+      String? username,
+      String? email,
+      String? telefon,
+      required String role,
+    }
+  ) async {
+    final endpoint = Uri.parse('$_url/api/admin/usuaris/pla/actualitzar');
+    final body = jsonEncode({
+      'username': username,
+      'pla': role,
+      'token': token,
+    });
+    print(body);
+    final response = await http.post(
+      endpoint,
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': 'Bearer $token',
+      },
+      body: body,
+    );
+    if(response.statusCode == 200) {
+      print("Updated user role");
+      return true;
+    }
+    print("Error updating user role: ${response.body}");
+    return false;
+  }
 }
+
+
  
