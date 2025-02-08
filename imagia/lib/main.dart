@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: "Montserrat",
       ),
-      home: const LoginView(),
+      home: const LoginView()
     );
   }
 }

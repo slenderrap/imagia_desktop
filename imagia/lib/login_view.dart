@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:imagia/app_lib.dart';
-import 'package:imagia/home_view.dart';
+import 'package:imagia/main_view.dart';
 import 'package:imagia/utils.dart';
 
 class LoginView extends StatefulWidget {
@@ -60,8 +60,7 @@ class _LoginViewState extends State<LoginView> {
       });
       return;
     }
-
-    print(response);
+    
     Map<String, dynamic> responseObj = jsonDecode(response);
     
     if(responseObj["status"] == "ERROR" && context.mounted) {
