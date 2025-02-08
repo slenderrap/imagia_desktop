@@ -122,7 +122,7 @@ class _UsersListState extends State<UsersList> {
                               ),
                             ),
                             Padding(
-                              padding: const EdgeInsets.all(5.0),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -131,68 +131,82 @@ class _UsersListState extends State<UsersList> {
                                 ],
                               ),
                             ),
-                            Row(
-                              children: [
-                                Text(user['role']),
-                                user['role'] == "admin"
-                                    ? const SizedBox()
-                                    : ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        foregroundColor: const Color.fromARGB(255, 55, 55, 55),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 80,
+                                    child: Text(user['role'])
+                                  ),
+                                  user['role'] == "admin"
+                                      ? const SizedBox()
+                                      : Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(0xFFFAFAFA),
+                                            foregroundColor: const Color.fromARGB(255, 55, 55, 55),
+                                            textStyle: const TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(4),
+                                            ),
+                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                          ),
+                                          onPressed: () {
+                                            AppLib.updateUserRole(
+                                                    token: widget.token,
+                                                    username: user['username'].toString(),
+                                                    role: user["role"] == "free" ? "premium" : "free"
+                                                  )
+                                                .then((value) {
+                                              if (value) {
+                                                AppLib.getUsersList(token: widget.token)
+                                                    .then((value) {
+                                                  setState(() {
+                                                    _users = value;
+                                                  });
+                                                });
+                                              }
+                                            });
+                                          }, 
+                                          child: const Text("Canviar rol"),
                                         ),
                                       ),
-                                      onPressed: () {
-                                        AppLib.updateUserRole(
-                                                token: widget.token,
-                                                username: user['username'].toString(),
-                                                role: user["role"] == "free" ? "premium" : "free"
-                                              )
-                                            .then((value) {
-                                          if (value) {
-                                            AppLib.getUsersList(token: widget.token)
-                                                .then((value) {
-                                              setState(() {
-                                                _users = value;
-                                              });
-                                            });
-                                          }
-                                        });
-                                      }, 
-                                      child: const Text("Canviar rol"),
-                                    ),
-                              ]
-                              // child: user['role'] == "admin"
-                              //     ? const Text("Administrador")
-                              //     : DropdownButton(
-                              //       isExpanded: false,
-                              //         value: user['role'],
-                              //         items: const [
-                              //           DropdownMenuItem(
-                              //               value: "free", child: Text("Gratuït")),
-                              //           DropdownMenuItem(
-                              //               value: "premium", child: Text("Premium")),
-                              //         ],
-                              //         onChanged: (newValue) {
-                              //           if (newValue != user['role']) {
-                              //             AppLib.updateUserRole(
-                              //                     token: widget.token,
-                              //                     username: user['username'].toString(),
-                              //                     role: newValue.toString())
-                              //                 .then((value) {
-                              //               if (value) {
-                              //                 AppLib.getUsersList(token: widget.token)
-                              //                     .then((value) {
-                              //                   setState(() {
-                              //                     _users = value;
-                              //                   });
-                              //                 });
-                              //               }
-                              //             });
-                              //           }
-                              //         },
-                              //       ),
+                                ]
+                                // child: user['role'] == "admin"
+                                //     ? const Text("Administrador")
+                                //     : DropdownButton(
+                                //       isExpanded: false,
+                                //         value: user['role'],
+                                //         items: const [
+                                //           DropdownMenuItem(
+                                //               value: "free", child: Text("Gratuït")),
+                                //           DropdownMenuItem(
+                                //               value: "premium", child: Text("Premium")),
+                                //         ],
+                                //         onChanged: (newValue) {
+                                //           if (newValue != user['role']) {
+                                //             AppLib.updateUserRole(
+                                //                     token: widget.token,
+                                //                     username: user['username'].toString(),
+                                //                     role: newValue.toString())
+                                //                 .then((value) {
+                                //               if (value) {
+                                //                 AppLib.getUsersList(token: widget.token)
+                                //                     .then((value) {
+                                //                   setState(() {
+                                //                     _users = value;
+                                //                   });
+                                //                 });
+                                //               }
+                                //             });
+                                //           }
+                                //         },
+                                //       ),
+                              ),
                             ),
                           ],
                         ),
