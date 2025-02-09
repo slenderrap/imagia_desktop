@@ -89,7 +89,6 @@ class AppLib {
       'pla': role,
       'token': token,
     });
-    print(body);
     final response = await http.post(
       endpoint,
       headers: {
@@ -99,10 +98,8 @@ class AppLib {
       body: body,
     );
     if(response.statusCode == 200) {
-      print("Updated user role");
       return true;
     }
-    print("Error updating user role: ${response.body}");
     return false;
   }
 
@@ -121,11 +118,33 @@ class AppLib {
     );
     if(response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      print(data);
       return data["data"]["logs"];
     }
     return [];
   }
+
+  static Future<Map<String, int>> getCountedLogs(
+    {
+      required String token,
+    }
+  ) async {
+    final endpoint = Uri.parse('$_url/api/admin/usuaris/logs/counted');
+    final response = await http.post(
+      endpoint,
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': 'Bearer $token',
+      },
+    );
+    if(response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+       if (data["data"] is Map<String, dynamic>) {
+      return (data["data"] as Map<String, dynamic>).map(
+        (key, value) => MapEntry(key, (value as num).toInt()),
+      );
+    }
+    }
+    return {};
+  }
 }
 
- 

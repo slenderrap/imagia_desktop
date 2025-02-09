@@ -3,7 +3,7 @@ import 'package:imagia/widgets/chart/column.dart';
 
 class Chart extends StatefulWidget {
 
-  final Map<String,double> data;
+  final Map<String,int> data;
   final double width;
   final double height;
   final String title;
@@ -26,7 +26,12 @@ class ChartState extends State<Chart> {
 
   @override
   void initState() {
-    divider = widget.data.values.reduce((value, element) => value > element ? value : element) / 100;
+    if(widget.data.isEmpty) {
+      divider = 1;
+    }else {
+      divider = widget.data.values.reduce((value, element) => value > element ? value : element) / 100;
+    }
+    
   
     super.initState();
   }
@@ -100,7 +105,7 @@ class ChartState extends State<Chart> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: widget.data.keys.map((key)=>
                   SizedBox(
-                    height: 60,
+                    height: 120,
                     child: RotatedBox(
                       quarterTurns: 3,
                       child: Text(key),

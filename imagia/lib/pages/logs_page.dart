@@ -49,6 +49,7 @@ class _LogsPageState extends State<LogsPage> {
     AppLib.getLogs(token: widget.token).then((value) {
       setState(() {
         _logs = value;
+        _filteredLogs = _logs;
         _tags = _logs.map((e) => e["tag"].toString()).toSet().toList();
       });
     });

@@ -51,7 +51,7 @@ class _ChartColumnState extends State<ChartColumn> {
                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    '${widget.value*widget.divider}',
+                    '${(widget.value*widget.divider).toInt()}',
                     style: const TextStyle(color: Colors.white),
                   ),
                 ],

@@ -159,7 +159,7 @@ class _HomeViewState extends State<HomeView> {
                 width: double.infinity,
               ),
               _actualPage == "Usuaris" ? UsersList(token: widget.token) : 
-              _actualPage == "Home" ? HomePage(username: widget.username,) : 
+              _actualPage == "Home" ? HomePage(username: widget.username, token: widget.token) : 
               LogsPage(token: widget.token),
             ],
           ),

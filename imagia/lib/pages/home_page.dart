@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:imagia/app_lib.dart';
 import 'package:imagia/widgets/chart/chart.dart';
 
 class HomePage extends StatefulWidget{
   final String username;
+  final String token;
 
-  const HomePage({super.key,
-    required this.username
+  const HomePage({
+    super.key,
+    required this.username,
+    required this.token
   });
 
   @override
@@ -13,6 +17,20 @@ class HomePage extends StatefulWidget{
 }
 
 class HomePageState extends State<HomePage>{
+
+  Map<String, int> _data = {};
+
+  @override
+  void initState() {
+    super.initState();
+
+    AppLib.getCountedLogs(token: widget.token).then((value) {
+      setState(() {
+        _data = value;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -43,21 +61,21 @@ class HomePageState extends State<HomePage>{
                 maxWidth: 800,
                 minWidth: 800
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     "Benvingut/da a Imagia",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 24,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Chart(
-                    data: {"value1": 20,"value2": 30,"value3": 80,"value4": 150,"value5": 35.5, "value6": 40, "value7": 60}, 
+                    data: _data,
                     title: "Peticions realitzades durant l'última hora",
-                    height: 300, 
+                    height: 350, 
                     width: 400,
                   )
                 ]
