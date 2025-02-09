@@ -15,6 +15,11 @@ class LogsPage extends StatefulWidget {
 
 class _LogsPageState extends State<LogsPage> {
   List<dynamic> _logs = [];
+  List<String> _tags = [];
+  List<dynamic> _filteredLogs = [];
+
+  String _selectedTag = "Tots";
+
   int _selectedLog = -1;
 
   void _handleSeeMore(Map<String, dynamic> log) {
@@ -23,12 +28,28 @@ class _LogsPageState extends State<LogsPage> {
     });
   }
 
+  void _handleFilterLogs(String tag) {
+    if (tag == "Tots") {
+      setState(() {
+        _selectedTag = tag;
+        _filteredLogs = _logs;
+      });
+    } else {
+      final filteredLogs = _logs.where((log) => log["tag"] == tag).toList();
+      setState(() {
+        _selectedTag = tag;
+        _filteredLogs = filteredLogs;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     AppLib.getLogs(token: widget.token).then((value) {
       setState(() {
         _logs = value;
+        _tags = _logs.map((e) => e["tag"].toString()).toSet().toList();
       });
     });
   }
@@ -46,7 +67,6 @@ class _LogsPageState extends State<LogsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
               const Text(
                 "Logs del Sistema",
                 style: TextStyle(
@@ -55,8 +75,47 @@ class _LogsPageState extends State<LogsPage> {
                 ),
               ),
               const Text("Llista dels logs del sistema."),
-              const SizedBox(height: 16),
-            
+              const SizedBox(height: 10),
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Total: ${_logs.length}",
+                        style: const TextStyle(
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const Text(
+                        "Filtrar per:",
+                        style: TextStyle(
+                          color: Colors.grey,
+                        ),
+                      ),
+                      DropdownButton<String>(
+                        value: _selectedTag,
+                        onChanged: (value) {
+                          _handleFilterLogs(value!);
+                        },
+                        items: [
+                          const DropdownMenuItem(
+                            value: "Tots",
+                            child: Text("Tots"),
+                          ),
+                          ..._tags.map((tag) {
+                          return DropdownMenuItem(
+                            value: tag,
+                            child: Text(tag),
+                          );
+                          }),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
@@ -68,13 +127,13 @@ class _LogsPageState extends State<LogsPage> {
                         width: 1,
                       ),
                     ),
-                    child: _logs.isEmpty
+                    child: _filteredLogs.isEmpty
                      ? const Center(child: CircularProgressIndicator())
                      :
                      ListView.builder(
-                      itemCount: _logs.length,
+                      itemCount: _filteredLogs.length,
                       itemBuilder: (context, index) {
-                        final log = _logs[index];
+                        final log = _filteredLogs[index];
                         return Material(
                           color: _selectedLog == log["id"] ? const Color.fromARGB(255, 238, 229, 241) : null,
                           child: ListTile(
