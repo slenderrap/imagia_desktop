@@ -105,7 +105,27 @@ class AppLib {
     print("Error updating user role: ${response.body}");
     return false;
   }
-}
 
+  static Future<List<dynamic>> getLogs(
+    {
+      required String token,
+    }
+  ) async {
+    final endpoint = Uri.parse('$_url/api/admin/usuaris/logs');
+    final response = await http.post(
+      endpoint,
+      headers: {
+        'Content-Type': 'application/json',
+        'authorization': 'Bearer $token',
+      },
+    );
+    if(response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      print(data);
+      return data["data"]["logs"];
+    }
+    return [];
+  }
+}
 
  

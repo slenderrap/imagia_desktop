@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:imagia/app_lib.dart';
 import 'package:imagia/login_view.dart';
 import 'package:imagia/pages/home_page.dart';
+import 'package:imagia/pages/logs_page.dart';
 import 'package:imagia/pages/users_list.dart';
 import 'package:imagia/widgets/chart/chart.dart';
 
@@ -159,7 +160,7 @@ class _HomeViewState extends State<HomeView> {
               ),
               _actualPage == "Usuaris" ? UsersList(token: widget.token) : 
               _actualPage == "Home" ? HomePage(username: widget.username,) : 
-              const Text("Logs"),
+              LogsPage(token: widget.token),
             ],
           ),
         ),
