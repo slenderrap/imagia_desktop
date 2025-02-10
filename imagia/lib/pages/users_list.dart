@@ -140,27 +140,25 @@ class _UsersListState extends State<UsersList> {
                                     child: Text(user['role'])
                                   ),
                                   user['role'] == "admin"
-                                      ? const SizedBox()
-                                      : Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFFFAFAFA),
-                                            foregroundColor: const Color.fromARGB(255, 55, 55, 55),
-                                            textStyle: const TextStyle(
-                                              fontSize: 12,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(4),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                          ),
-                                          onPressed: () {
+                                    ? const Text("Administrador")
+                                    : DropdownButton(
+                                      isExpanded: false,
+                                        value: user['role'],
+                                        items: const [
+                                          DropdownMenuItem(
+                                              value: "free", child: Text("Gratuït")),
+                                          DropdownMenuItem(
+                                              value: "premium", child: Text("Premium")),
+                                          DropdownMenuItem(
+                                            value: "custom", child: Text("Personalitzat"),
+                                          )
+                                        ],
+                                        onChanged: (newValue) {
+                                          if (newValue != user['role']) {
                                             AppLib.updateUserRole(
                                                     token: widget.token,
                                                     username: user['username'].toString(),
-                                                    role: user["role"] == "free" ? "premium" : "free"
-                                                  )
+                                                    role: newValue.toString())
                                                 .then((value) {
                                               if (value) {
                                                 AppLib.getUsersList(token: widget.token)
@@ -171,9 +169,8 @@ class _UsersListState extends State<UsersList> {
                                                 });
                                               }
                                             });
-                                          }, 
-                                          child: const Text("Canviar rol"),
-                                        ),
+                                          }
+                                        },
                                       ),
                                 ]
                                 // child: user['role'] == "admin"
