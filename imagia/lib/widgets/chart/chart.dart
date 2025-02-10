@@ -41,6 +41,7 @@ class ChartState extends State<Chart> {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.data != widget.data) {
+      print(widget.data);
       divider = widget.data.values.reduce((value, element) => value > element ? value : element) / 100;
     }
   }
