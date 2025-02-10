@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:imagia/app_lib.dart';
 
 class UsersList extends StatefulWidget {
@@ -12,12 +13,19 @@ class UsersList extends StatefulWidget {
 class _UsersListState extends State<UsersList> {
   List<dynamic>? _users;
 
+  List<TextEditingController>? _controllers;
+
   @override
   void initState() {
     super.initState();
     AppLib.getUsersList(token: widget.token).then((value) {
       setState(() {
         _users = value;
+        _controllers = value?.map((user) {
+          return TextEditingController(
+            text: user['role'] == 'free' ? "5" : user['role'] == 'premium' ? "10" : user['custom']?.toString() ?? "0", 
+          );
+        }).toList();
       });
     });
   }
@@ -100,6 +108,17 @@ class _UsersListState extends State<UsersList> {
                             ),
                           ),
                         ),
+                        Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Text(
+                            "Quota",
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold, 
+                              color: Color.fromARGB(255, 147, 147, 147)
+                            ),
+                          )
+                        )
                       ],
                     ),
                     if (_users != null)
@@ -135,32 +154,29 @@ class _UsersListState extends State<UsersList> {
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                               child: Row(
                                 children: [
-                                  SizedBox(
-                                    width: 80,
-                                    child: Text(user['role'])
-                                  ),
-                                  user['role'] == "admin"
-                                      ? const SizedBox()
-                                      : Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                                        child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFFFAFAFA),
-                                            foregroundColor: const Color.fromARGB(255, 55, 55, 55),
-                                            textStyle: const TextStyle(
-                                              fontSize: 12,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(4),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    DropdownButton(
+                                      isExpanded: false,
+                                        value: user['role'],
+                                        items: const [
+                                          DropdownMenuItem(
+                                            value: "free", child: Text("Gratuït")
                                           ),
-                                          onPressed: () {
+                                          DropdownMenuItem(
+                                            value: "premium", child: Text("Premium")
+                                          ),
+                                          DropdownMenuItem(
+                                            value: "custom", child: Text("Custom")
+                                          ),
+                                          DropdownMenuItem(
+                                            value: "admin", child: Text("Administrador"),
+                                          )
+                                        ],
+                                        onChanged: (newValue) {
+                                          if (newValue != user['role']) {
                                             AppLib.updateUserRole(
                                                     token: widget.token,
                                                     username: user['username'].toString(),
-                                                    role: user["role"] == "free" ? "premium" : "free"
-                                                  )
+                                                    role: newValue.toString())
                                                 .then((value) {
                                               if (value) {
                                                 AppLib.getUsersList(token: widget.token)
@@ -171,43 +187,46 @@ class _UsersListState extends State<UsersList> {
                                                 });
                                               }
                                             });
-                                          }, 
-                                          child: const Text("Canviar rol"),
-                                        ),
+                                          }
+                                        },
                                       ),
                                 ]
-                                // child: user['role'] == "admin"
-                                //     ? const Text("Administrador")
-                                //     : DropdownButton(
-                                //       isExpanded: false,
-                                //         value: user['role'],
-                                //         items: const [
-                                //           DropdownMenuItem(
-                                //               value: "free", child: Text("Gratuït")),
-                                //           DropdownMenuItem(
-                                //               value: "premium", child: Text("Premium")),
-                                //         ],
-                                //         onChanged: (newValue) {
-                                //           if (newValue != user['role']) {
-                                //             AppLib.updateUserRole(
-                                //                     token: widget.token,
-                                //                     username: user['username'].toString(),
-                                //                     role: newValue.toString())
-                                //                 .then((value) {
-                                //               if (value) {
-                                //                 AppLib.getUsersList(token: widget.token)
-                                //                     .then((value) {
-                                //                   setState(() {
-                                //                     _users = value;
-                                //                   });
-                                //                 });
-                                //               }
-                                //             });
-                                //           }
-                                //         },
-                                //       ),
                               ),
                             ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                              child: 
+                                user['role'] == 'free' ? Row(
+                                  children: [
+                                    Text("${user['custom']} / 5")
+                                  ],
+                                ) : 
+                                user["role"] == 'premium' ? Text("${user['custom']} / 10")
+                                : 
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  children: [
+                                    Text(user["custom"].toString() == "null" ? "10 / " : "${user["custom"].toString()} /"),
+                                    SizedBox(
+                                      width: 50,
+                                      height: 35,
+                                      child: TextField(
+                                        // controller: _controllers![user],
+                                        keyboardType: TextInputType.number,
+                                        inputFormatters: [
+                                          FilteringTextInputFormatter.digitsOnly
+                                        ],
+                                        onChanged: (value) {},
+                                        style: const TextStyle(
+                                          fontSize: 14
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                
+                            )
                           ],
                         ),
                   ],
