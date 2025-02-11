@@ -13,7 +13,39 @@ class UsersList extends StatefulWidget {
 class _UsersListState extends State<UsersList> {
   List<dynamic>? _users;
 
-  List<TextEditingController>? _controllers;
+  bool _raisePlan(user) {
+    try {
+      AppLib.updatePlan(token: widget.token, username: user['username'].toString(), plan: (user['custom'] ?? 10 )+ 1).then((value) => {
+        if (value) {
+          AppLib.getUsersList(token: widget.token).then((value) {
+            setState(() {
+              _users = value;
+            });
+          })
+        }
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  bool _decreasePlan(user) {
+    try {
+      AppLib.updatePlan(token: widget.token, username: user['username'].toString(), plan: (user['custom'] ?? 10 ) - 1).then((value) => {
+        if (value) {
+          AppLib.getUsersList(token: widget.token).then((value) {
+            setState(() {
+              _users = value;
+            });
+          })
+        }
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 
   @override
   void initState() {
@@ -21,11 +53,6 @@ class _UsersListState extends State<UsersList> {
     AppLib.getUsersList(token: widget.token).then((value) {
       setState(() {
         _users = value;
-        _controllers = value?.map((user) {
-          return TextEditingController(
-            text: user['role'] == 'free' ? "5" : user['role'] == 'premium' ? "10" : user['custom']?.toString() ?? "0", 
-          );
-        }).toList();
       });
     });
   }
@@ -63,6 +90,12 @@ class _UsersListState extends State<UsersList> {
                   ),
                 ),
                 child: Table(
+                  columnWidths: const {
+                    0: FlexColumnWidth(2),
+                    1: FlexColumnWidth(3),
+                    2: FlexColumnWidth(3),
+                    3: FlexColumnWidth(3),
+                  },
                   defaultVerticalAlignment: TableCellVerticalAlignment.middle,
                   children: [
                     const TableRow(
@@ -154,42 +187,68 @@ class _UsersListState extends State<UsersList> {
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
                               child: Row(
                                 children: [
-                                    DropdownButton(
-                                      isExpanded: false,
-                                        value: user['role'],
-                                        items: const [
-                                          DropdownMenuItem(
-                                            value: "free", child: Text("Gratuït")
-                                          ),
-                                          DropdownMenuItem(
-                                            value: "premium", child: Text("Premium")
-                                          ),
-                                          DropdownMenuItem(
-                                            value: "custom", child: Text("Custom")
-                                          ),
-                                          DropdownMenuItem(
-                                            value: "admin", child: Text("Administrador"),
-                                          )
-                                        ],
-                                        onChanged: (newValue) {
-                                          if (newValue != user['role']) {
-                                            AppLib.updateUserRole(
-                                                    token: widget.token,
-                                                    username: user['username'].toString(),
-                                                    role: newValue.toString())
-                                                .then((value) {
-                                              if (value) {
-                                                AppLib.getUsersList(token: widget.token)
-                                                    .then((value) {
-                                                  setState(() {
-                                                    _users = value;
+                                    SizedBox(
+                                      width: 115,
+                                      child: DropdownButton(
+                                          value: user['role'],
+                                          items: const [
+                                            DropdownMenuItem(
+                                              value: "free", 
+                                              child: Text(
+                                                "Gratuït",
+                                                style: TextStyle(
+                                                  fontSize: 12
+                                                ),
+                                              )
+                                            ),
+                                            DropdownMenuItem(
+                                              value: "premium", 
+                                              child: Text(
+                                                "Premium",
+                                                style: TextStyle(
+                                                  fontSize: 12
+                                                ),
+                                              )
+                                            ),
+                                            DropdownMenuItem(
+                                              value: "custom", 
+                                              child: Text(
+                                                "Custom",
+                                                style: TextStyle(
+                                                  fontSize: 12
+                                                ),
+                                              )
+                                            ),
+                                            DropdownMenuItem(
+                                              value: "admin", 
+                                              child: Text(
+                                                "Administrador",
+                                                style: TextStyle(
+                                                  fontSize: 12
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                          onChanged: (newValue) {
+                                            if (newValue != user['role']) {
+                                              AppLib.updateUserRole(
+                                                      token: widget.token,
+                                                      username: user['username'].toString(),
+                                                      role: newValue.toString())
+                                                  .then((value) {
+                                                if (value) {
+                                                  AppLib.getUsersList(token: widget.token)
+                                                      .then((value) {
+                                                    setState(() {
+                                                      _users = value;
+                                                    });
                                                   });
-                                                });
-                                              }
-                                            });
-                                          }
-                                        },
-                                      ),
+                                                }
+                                              });
+                                            }
+                                          },
+                                        ),
+                                    ),
                                 ]
                               ),
                             ),
@@ -198,31 +257,44 @@ class _UsersListState extends State<UsersList> {
                               child: 
                                 user['role'] == 'free' ? Row(
                                   children: [
-                                    Text("${user['custom']} / 5")
+                                    Text("${5-user['requested']} / 5")
                                   ],
                                 ) : 
-                                user["role"] == 'premium' ? Text("${user['custom']} / 10")
+                                user["role"] == 'premium' ? Text("${10-user['requested']} / 10")
                                 : 
                                 Row(
-                                  crossAxisAlignment: CrossAxisAlignment.baseline,
-                                  textBaseline: TextBaseline.alphabetic,
                                   children: [
-                                    Text(user["custom"].toString() == "null" ? "10 / " : "${user["custom"].toString()} /"),
                                     SizedBox(
-                                      width: 50,
-                                      height: 35,
-                                      child: TextField(
-                                        // controller: _controllers![user],
-                                        keyboardType: TextInputType.number,
-                                        inputFormatters: [
-                                          FilteringTextInputFormatter.digitsOnly
-                                        ],
-                                        onChanged: (value) {},
-                                        style: const TextStyle(
-                                          fontSize: 14
+                                      width: 25,
+                                      height: 25,
+                                      child: OutlinedButton(
+                                        onPressed: () {
+                                          _decreasePlan(user);
+                                        }, 
+                                        style: OutlinedButton.styleFrom(
+                                          padding: EdgeInsets.zero
                                         ),
+                                        child: const Text("-")
                                       ),
-                                    )
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      "${(user["custom"] ?? 10) - user["requested"]} / ${user["custom"] ?? "10"}"
+                                    ),
+                                    const SizedBox(width: 10),
+                                    SizedBox(
+                                      width: 25,
+                                      height: 25,
+                                      child: OutlinedButton(
+                                        onPressed:() {
+                                          _raisePlan(user);
+                                        }, 
+                                        style: OutlinedButton.styleFrom(
+                                          padding: EdgeInsets.zero
+                                        ),
+                                        child: const Text("+")
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 

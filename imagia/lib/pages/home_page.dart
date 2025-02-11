@@ -75,7 +75,7 @@ class HomePageState extends State<HomePage>{
                   Chart(
                     data: _data,
                     title: "Peticions realitzades durant l'última hora",
-                    height: 350, 
+                    height: 380, 
                     width: 400,
                   )
                 ]

@@ -69,8 +69,11 @@ class AppLib {
         final data = jsonDecode(response.body);
         return data["data"];
       }
+      
+      return [];
     } catch (e) {
-      return null;
+      print("Error fetching users: "+e.toString());
+      return [];
     }
   }
 
@@ -145,6 +148,36 @@ class AppLib {
     }
     }
     return {};
+  }
+
+  static Future<bool> updatePlan({
+    required String username,
+    required int plan,
+    required String token
+  }) async {
+    try{
+      final endpoint = Uri.parse('$_url/api/admin/usuaris/quota/actualitzar');
+      final response = await http.post(
+        endpoint,
+        headers: {
+          'Content-Type': 'application/json',
+          'authorization': 'Bearer $token',
+        },
+        body: jsonEncode({ 
+        'username': username,
+        'quota': plan
+      }),
+      );
+
+      if(response.statusCode == 200) {
+        return true;
+      }
+      return false;
+    } catch(e) {
+      print(e);
+      return false;
+    }
+      
   }
 }
 

@@ -106,7 +106,7 @@ class ChartState extends State<Chart> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: widget.data.keys.map((key)=>
                   SizedBox(
-                    height: 120,
+                    height: 140,
                     child: RotatedBox(
                       quarterTurns: 3,
                       child: Text(key),
