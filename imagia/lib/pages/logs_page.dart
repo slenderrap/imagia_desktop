@@ -22,6 +22,8 @@ class _LogsPageState extends State<LogsPage> {
 
   int _selectedLog = -1;
 
+  TextEditingController _controller = new TextEditingController();
+
   void _handleSeeMore(Map<String, dynamic> log) {
     setState(() {
       _selectedLog == log["id"] ? _selectedLog = -1 : _selectedLog = log["id"];
@@ -46,6 +48,13 @@ class _LogsPageState extends State<LogsPage> {
   @override
   void initState() {
     super.initState();
+    _controller.addListener(() {
+      final String text = _controller.text.toLowerCase();
+      print(text);
+      setState(() {
+        _filteredLogs = _filteredLogs.where((log) => log["response"].toString().contains(text)).toList();
+      });
+    });
     AppLib.getLogs(token: widget.token).then((value) {
       setState(() {
         _logs = value;
@@ -79,37 +88,66 @@ class _LogsPageState extends State<LogsPage> {
               const SizedBox(height: 10),
               LayoutBuilder(
                 builder: (context, constraints) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Total: ${_logs.length}",
-                        style: const TextStyle(
-                          color: Colors.grey,
-                        ),
-                      ),
-                      const Text(
-                        "Filtrar per:",
-                        style: TextStyle(
-                          color: Colors.grey,
-                        ),
-                      ),
-                      DropdownButton<String>(
-                        value: _selectedTag,
-                        onChanged: (value) {
-                          _handleFilterLogs(value!);
-                        },
-                        items: [
-                          const DropdownMenuItem(
-                            value: "Tots",
-                            child: Text("Tots"),
+                      SizedBox(
+                        width: 400,
+                        child: TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              if(value == "") {
+                                if(_selectedTag == "Tots")  {
+                                  _filteredLogs = _logs;
+                                }else {
+                                  _filteredLogs = _logs.where((log) => log["tag"] == _selectedTag.toString()).toList();
+                                }
+                                
+                              }
+                              else {
+                                _filteredLogs = _logs.where((log) => log["response"].toString().contains(value)).toList();
+                              }
+                              
+                            });
+                          },
+                          decoration: const InputDecoration(
+                            hintText: "Cerca per contingut...",
                           ),
-                          ..._tags.map((tag) {
-                          return DropdownMenuItem(
-                            value: tag,
-                            child: Text(tag),
-                          );
-                          }),
+                        ),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Total: ${_filteredLogs.length}",
+                            style: const TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const Text(
+                            "Filtrar per:",
+                            style: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                          DropdownButton<String>(
+                            value: _selectedTag,
+                            onChanged: (value) {
+                              _handleFilterLogs(value!);
+                            },
+                            items: [
+                              const DropdownMenuItem(
+                                value: "Tots",
+                                child: Text("Tots"),
+                              ),
+                              ..._tags.map((tag) {
+                              return DropdownMenuItem(
+                                value: tag,
+                                child: Text(tag),
+                              );
+                              }),
+                            ],
+                          ),
                         ],
                       ),
                     ],
