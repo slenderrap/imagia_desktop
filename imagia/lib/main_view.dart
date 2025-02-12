@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:imagia/app_lib.dart';
 import 'package:imagia/login_view.dart';
 import 'package:imagia/pages/home_page.dart';
 import 'package:imagia/pages/logs_page.dart';
 import 'package:imagia/pages/users_list.dart';
-import 'package:imagia/widgets/chart/chart.dart';
 
 class HomeView extends StatefulWidget{
   final String username;
